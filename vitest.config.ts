@@ -20,6 +20,7 @@ export default defineConfig({
         'src/**/*.types.ts',
         'src/**/index.ts',
         'src/app/**',
+        'src/types/**',
         'src/**/*.d.ts',
       ],
     },
