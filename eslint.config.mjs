@@ -42,6 +42,11 @@ const config = [
     files: ['prisma/seed.ts', 'scripts/**/*.ts'],
     rules: { 'no-console': 'off' },
   },
+  {
+    // Team crests are small remote images of varying format; next/image adds no value here.
+    files: ['src/components/team/TeamBadge.tsx'],
+    rules: { '@next/next/no-img-element': 'off' },
+  },
 ];
 
 export default config;

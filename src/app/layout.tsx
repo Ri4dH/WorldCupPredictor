@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next/types';
 import { Inter } from 'next/font/google';
 
 import { Providers } from '@/app/providers';
+import { SiteHeader } from '@/components/layout/SiteHeader';
 import '@/styles/globals.css';
 
 const inter = Inter({
@@ -30,8 +31,17 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} dark`}>
-      <body className="min-h-dvh font-sans">
-        <Providers>{children}</Providers>
+      <body className="flex min-h-dvh flex-col font-sans">
+        <Providers>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <footer className="border-t border-border">
+            <div className="container py-8 text-sm text-muted-foreground">
+              Built for the FIFA World Cup 2026. Predictions are probabilistic estimates, not
+              guarantees.
+            </div>
+          </footer>
+        </Providers>
       </body>
     </html>
   );

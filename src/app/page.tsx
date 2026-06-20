@@ -7,9 +7,9 @@ import {
   Sigma,
   Target,
   TrendingUp,
-  Trophy,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 
 interface Capability {
   readonly icon: LucideIcon;
@@ -28,7 +28,7 @@ const MODELS: readonly Capability[] = [
 ] as const;
 
 const STEPS: readonly { readonly step: string; readonly title: string; readonly description: string }[] = [
-  { step: '01', title: 'Ingest', description: 'Historical results, current form, expected goals and live tournament data.' },
+  { step: '01', title: 'Ingest', description: 'Live results, current form, expected goals and standings.' },
   { step: '02', title: 'Ensemble', description: 'Seven independent models each produce calibrated probabilities.' },
   { step: '03', title: 'Explain', description: 'A weighted prediction with the statistics that drove it.' },
 ] as const;
@@ -48,22 +48,7 @@ export default function HomePage() {
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[480px] bg-[radial-gradient(60%_60%_at_50%_0%,hsl(var(--primary)/0.18),transparent)]"
       />
 
-      <header className="container flex items-center justify-between py-6">
-        <span className="flex items-center gap-2 font-semibold">
-          <Trophy className="h-5 w-5 text-accent" aria-hidden />
-          WC2026 Predictor
-        </span>
-        <nav aria-label="Primary" className="hidden gap-6 text-sm text-muted-foreground sm:flex">
-          <a className="transition-colors hover:text-foreground" href="#models">
-            Models
-          </a>
-          <a className="transition-colors hover:text-foreground" href="#how-it-works">
-            How it works
-          </a>
-        </nav>
-      </header>
-
-      <main className="container">
+      <div className="container">
         <section className="flex flex-col items-center py-16 text-center sm:py-24" aria-labelledby="hero-heading">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
@@ -75,23 +60,23 @@ export default function HomePage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-pretty text-lg text-muted-foreground">
-            An ensemble of statistical and machine-learning models estimates outcomes, scorelines and the reasons
-            behind them — fast, reproducible and built to improve over time.
+            An ensemble of statistical and machine-learning models estimates outcomes, scorelines and
+            the reasons behind them — fast, reproducible and built to improve over time.
           </p>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="#how-it-works"
+            <Link
+              href="/matches"
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
             >
-              See how it works
+              Explore matches
               <ArrowRight className="h-4 w-4" aria-hidden />
-            </a>
+            </Link>
             <a
-              href="#models"
+              href="#how-it-works"
               className="inline-flex items-center justify-center rounded-md border border-border bg-card px-6 py-3 font-medium transition-colors hover:bg-muted"
             >
-              Explore the model
+              How it works
             </a>
           </div>
 
@@ -142,11 +127,7 @@ export default function HomePage() {
             ))}
           </ol>
         </section>
-      </main>
-
-      <footer className="container border-t border-border py-8 text-sm text-muted-foreground">
-        <p>Built for the FIFA World Cup 2026. Predictions are probabilistic estimates, not guarantees.</p>
-      </footer>
+      </div>
     </div>
   );
 }
