@@ -7,6 +7,7 @@ import {
   type FootballDataStandingGroup,
   type FootballDataStandingRow,
 } from './footballDataClient';
+import { groupLetter } from './liveMatches';
 import { type Confederation, type TeamStrengthValues, WC2026_TEAMS } from './wc2026Dataset';
 
 const HOST_CODES = new Set(['USA', 'CAN', 'MEX']);
@@ -27,9 +28,11 @@ const CONFEDERATION_BY_CODE = new Map<string, Confederation>(
   WC2026_TEAMS.map((team) => [team.code, team.confederation]),
 );
 
-function groupLetter(raw: string | null): string {
-  return raw?.match(/GROUP[\s_-]?([A-Z])/i)?.[1]?.toUpperCase() ?? '';
-}
+// Pseudo-observations that pull small in-tournament samples toward the baseline,
+// so a team that has won one game 3-0 is not rated as scoring three per match.
+const SHRINKAGE_GAMES = 4;
+const BASELINE_GOALS = 1.35;
+const BASELINE_POINTS = 1.4;
 
 /**
  * Derive a strength profile from a team's group-stage standing. football-data.org
@@ -40,12 +43,12 @@ function strengthFromStanding(row: FootballDataStandingRow | undefined): TeamStr
   if (!row || row.playedGames <= 0) {
     return BASELINE_STRENGTH;
   }
-  const played = row.playedGames;
-  const attack = clamp(row.goalsFor / played, 0.4, 3);
-  const defense = clamp(row.goalsAgainst / played, 0.4, 3);
-  const form = clamp(row.points / played, 0, 3);
-  const goalDifferencePerGame = (row.goalsFor - row.goalsAgainst) / played;
-  const elo = clamp(1700 + goalDifferencePerGame * 120 + (form - 1.5) * 90, 1450, 2150);
+  const denominator = row.playedGames + SHRINKAGE_GAMES;
+  const attack = clamp((row.goalsFor + BASELINE_GOALS * SHRINKAGE_GAMES) / denominator, 0.4, 3);
+  const defense = clamp((row.goalsAgainst + BASELINE_GOALS * SHRINKAGE_GAMES) / denominator, 0.4, 3);
+  const form = clamp((row.points + BASELINE_POINTS * SHRINKAGE_GAMES) / denominator, 0, 3);
+  const goalDifferencePerGame = (row.goalsFor - row.goalsAgainst) / denominator;
+  const elo = clamp(1700 + goalDifferencePerGame * 140 + (form - BASELINE_POINTS) * 90, 1450, 2150);
 
   return {
     elo: round(elo, 0),

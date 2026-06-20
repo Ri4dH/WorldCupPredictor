@@ -47,9 +47,12 @@ describe('liveDataProvider', () => {
     const brazil = teams.find((team) => team.code === 'BRA');
     expect(brazil?.group).toBe('C');
     expect(brazil?.confederation).toBe('CONMEBOL'); // from the curated mapping
-    expect(brazil?.strength.attackStrength).toBeCloseTo(7 / 3, 2);
-    expect(brazil?.strength.form).toBeCloseTo(3, 2);
+    // Strength is shrunk toward the baseline: above baseline but below the raw rate.
+    expect(brazil?.strength.attackStrength).toBeGreaterThan(1.35);
+    expect(brazil?.strength.attackStrength).toBeLessThan(7 / 3);
+    expect(brazil?.strength.form).toBeGreaterThan(1.4);
     expect(brazil?.strength.elo).toBeGreaterThan(1700);
+    expect(brazil?.strength.elo).toBeLessThanOrEqual(2150);
 
     const usa = teams.find((team) => team.code === 'USA');
     expect(usa?.host).toBe(true);

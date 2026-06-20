@@ -7,7 +7,10 @@ vi.mock('@/lib/prisma', () => ({
         Promise.resolve({ id: `g-${where.name}`, name: where.name }),
       ),
     },
-    team: { upsert: vi.fn(() => Promise.resolve({})) },
+    team: {
+      upsert: vi.fn(() => Promise.resolve({})),
+      updateMany: vi.fn(() => Promise.resolve({ count: 0 })),
+    },
   },
 }));
 vi.mock('@/server/data', () => ({
@@ -64,7 +67,7 @@ describe('syncTeams', () => {
     const result = await syncTeams();
 
     // Only 'C' is a real group; the empty group name is filtered out.
-    expect(result).toEqual({ source: 'seed', groups: 1, teams: 2 });
+    expect(result).toEqual({ source: 'seed', groups: 1, teams: 2, retired: 0 });
     expect(prisma.group.upsert).toHaveBeenCalledTimes(1);
     expect(prisma.team.upsert).toHaveBeenCalledTimes(2);
   });

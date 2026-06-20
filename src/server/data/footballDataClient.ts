@@ -39,6 +39,17 @@ export interface FootballDataStandingGroup {
   readonly table: readonly FootballDataStandingRow[];
 }
 
+export interface FootballDataMatch {
+  readonly id: number;
+  readonly utcDate: string;
+  readonly status: string;
+  readonly stage: string;
+  readonly group: string | null;
+  readonly homeTeam: { readonly tla: string | null; readonly name: string };
+  readonly awayTeam: { readonly tla: string | null; readonly name: string };
+  readonly score: { readonly fullTime: { readonly home: number | null; readonly away: number | null } };
+}
+
 async function request<T>(path: string): Promise<T> {
   const env = getServerEnv();
   if (!env.FOOTBALL_DATA_API_KEY) {
@@ -61,4 +72,7 @@ export const footballDataClient = {
 
   getStandings: (competition: string) =>
     request<{ standings: FootballDataStandingGroup[] }>(`/competitions/${competition}/standings`),
+
+  getMatches: (competition: string) =>
+    request<{ matches: FootballDataMatch[] }>(`/competitions/${competition}/matches`),
 };

@@ -1,13 +1,22 @@
 import 'dotenv/config';
 
+import { isLiveDataSource } from '@/config/env';
 import { prisma } from '@/lib/prisma';
+import { syncLiveMatches } from '@/server/services/matchSyncService';
 import { syncTeams } from '@/server/services/teamSyncService';
 
 async function main(): Promise<void> {
-  const result = await syncTeams();
+  const teams = await syncTeams();
   console.log(
-    `Synced from "${result.source}" provider: ${result.groups} groups, ${result.teams} teams.`,
+    `Teams synced from "${teams.source}": ${teams.groups} groups, ${teams.teams} teams (${teams.retired} retired).`,
   );
+
+  if (isLiveDataSource()) {
+    const matches = await syncLiveMatches();
+    console.log(
+      `Live fixtures synced: ${matches.fixtures} matches (${matches.removedSeed} seed fixtures removed).`,
+    );
+  }
 }
 
 main()
