@@ -38,6 +38,10 @@ const config = [
     files: ['src/lib/logger.ts'],
     rules: { 'no-console': 'off' },
   },
+  {
+    files: ['prisma/seed.ts', 'scripts/**/*.ts'],
+    rules: { 'no-console': 'off' },
+  },
 ];
 
 export default config;
