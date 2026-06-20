@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens (dark-first). Values are HSL channels consumed by
+ * tailwind.config.ts as `hsl(var(--token))`, keeping the palette in one place.
+ */
+@layer base {
+  :root {
+    --background: 222 24% 6%;
+    --foreground: 210 20% 96%;
+
+    --card: 222 22% 9%;
+    --card-foreground: 210 20% 96%;
+
+    --muted: 222 16% 16%;
+    --muted-foreground: 215 16% 66%;
+
+    --primary: 152 60% 46%;
+    --primary-foreground: 153 80% 6%;
+
+    --accent: 41 96% 56%;
+    --accent-foreground: 41 96% 8%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 152 60% 46%;
+    --success-foreground: 153 80% 6%;
+
+    --border: 222 16% 18%;
+    --input: 222 16% 18%;
+    --ring: 152 60% 46%;
+
+    --radius: 0.75rem;
+
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
