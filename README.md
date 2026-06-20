@@ -79,5 +79,21 @@ See [`.env.example`](./.env.example). Never commit a real `.env`.
 | `LOG_LEVEL`              | no       | `debug` \| `info` \| `warn` \| `error`          |
 | `PREDICTION_DATA_SOURCE` | no       | `seed` (default) \| `live`                      |
 | `FOOTBALL_DATA_API_KEY`  | no       | Required only when `PREDICTION_DATA_SOURCE=live` |
+| `FOOTBALL_DATA_COMPETITION` | no    | Competition code for the live provider (default `WC`) |
 
 \* Required once the database milestone is wired; the app builds without it.
+
+## Background jobs
+
+A scheduled GitHub Action ([`.github/workflows/refresh-data.yml`](.github/workflows/refresh-data.yml))
+runs `npm run data:refresh` every 3 hours to keep the database in sync with the live
+tournament (it can also be triggered on demand from the Actions tab). Configure these
+repository secrets under **Settings → Secrets and variables → Actions**:
+
+| Secret | Purpose |
+| ------ | ------- |
+| `DATABASE_URL` | Neon pooled connection string |
+| `DIRECT_URL` | Neon direct connection string |
+| `FOOTBALL_DATA_API_KEY` | football-data.org API token |
+
+The same sync runs locally with `npm run data:refresh` (using your `.env`).

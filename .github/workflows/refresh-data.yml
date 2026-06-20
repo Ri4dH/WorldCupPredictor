@@ -1,0 +1,52 @@
+name: Refresh live data
+
+# Keeps the database in sync with the live tournament by running the data refresh
+# on a schedule. Configure these repository secrets (Settings → Secrets and
+# variables → Actions):
+#   DATABASE_URL           Neon pooled connection string (neondb_owner role)
+#   DIRECT_URL             Neon direct connection string
+#   FOOTBALL_DATA_API_KEY  football-data.org API token
+#
+# Trigger manually any time from the Actions tab (workflow_dispatch).
+
+on:
+  schedule:
+    # Every 3 hours (UTC). Adjust the cadence to taste.
+    - cron: '0 */3 * * *'
+  workflow_dispatch: {}
+
+# Never let two refreshes overlap.
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PREDICTION_DATA_SOURCE: live
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Refresh live data
+        run: npm run data:refresh
