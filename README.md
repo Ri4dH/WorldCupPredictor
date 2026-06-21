@@ -27,6 +27,7 @@ Every prediction blends seven independent models into one calibrated forecast �
 - **Explainability** — Each prediction is broken down into the factors that drove it (Elo difference, expected-goals edge, recent form, squad availability, home advantage, tournament context), shown as easy-to-read diverging bars.
 - **Seven-model ensemble** — No single algorithm decides a match. Seven independent models each produce probabilities, and the ensemble blends them with configurable weights.
 - **Live tournament data** — Teams, fixtures, scores and standings come from a live football data feed, so the app reflects the real, in-progress World Cup. A curated offline dataset is used when no API key is configured.
+- **Tournament browser** — Fixtures with live scores, group standings computed from results, per-team profile pages, and a read-only admin overview of system status and model weights.
 - **Versioned REST API** — A clean `/api/v1` surface (teams, matches, groups, predictions) with a consistent response envelope, input validation and rate limiting.
 - **Scheduled auto-refresh** — A GitHub Action keeps the database in sync with live results on a schedule.
 - **Reproducible** — The Monte Carlo simulation is seeded, so the same fixture always yields the same prediction.
@@ -238,11 +239,10 @@ Apply migrations once against your Neon database with `npm run prisma:deploy` (f
 # Future Improvements
 
 - **Knockout bracket simulation** — Monte Carlo the full tournament for live title odds.
-- **Team detail pages** — per-team form, fixtures, squad and rating history.
-- **Standings page** — live group tables (the data and API already exist).
 - **User accounts** — sign-in with saved predictions and favorites (Auth.js).
-- **Admin dashboard** — manage data refreshes, model weights and overrides.
+- **Authenticated admin controls** — trigger data refreshes and override model weights from the (currently read-only) admin dashboard.
 - **Model calibration & backtesting** — tune ensemble weights against historical results.
+- **Player-level data** — squad and injury detail feeding the availability signal.
 
 ---
 

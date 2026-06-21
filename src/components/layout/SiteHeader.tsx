@@ -14,6 +14,9 @@ export function SiteHeader() {
           <Link href="/matches" className="text-muted-foreground transition-colors hover:text-foreground">
             Matches
           </Link>
+          <Link href="/standings" className="text-muted-foreground transition-colors hover:text-foreground">
+            Standings
+          </Link>
         </nav>
       </div>
     </header>

@@ -7,7 +7,7 @@ export const teamRepository = {
   findById: (id: string) => prisma.team.findFirst({ where: { id, deletedAt: null } }),
 
   findByCode: (code: string) =>
-    prisma.team.findFirst({ where: { code, deletedAt: null } }),
+    prisma.team.findFirst({ where: { code, deletedAt: null }, include: { group: true } }),
 
   listByGroup: (groupId: string) =>
     prisma.team.findMany({ where: { groupId, deletedAt: null }, orderBy: { elo: 'desc' } }),

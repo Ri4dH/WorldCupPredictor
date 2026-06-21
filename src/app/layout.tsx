@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next/types';
 import { Inter } from 'next/font/google';
+import Link from 'next/link';
 
 import { Providers } from '@/app/providers';
 import { SiteHeader } from '@/components/layout/SiteHeader';
@@ -36,9 +37,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <footer className="border-t border-border">
-            <div className="container py-8 text-sm text-muted-foreground">
-              Built for the FIFA World Cup 2026. Predictions are probabilistic estimates, not
-              guarantees.
+            <div className="container flex flex-col gap-2 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                Built for the FIFA World Cup 2026. Predictions are probabilistic estimates, not
+                guarantees.
+              </span>
+              <Link href="/admin" className="transition-colors hover:text-foreground">
+                Admin
+              </Link>
             </div>
           </footer>
         </Providers>

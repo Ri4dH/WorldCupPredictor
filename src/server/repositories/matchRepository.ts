@@ -33,4 +33,11 @@ export const matchRepository = {
       include: withTeams,
       orderBy: { kickoff: 'asc' },
     }),
+
+  listByTeam: (teamId: string) =>
+    prisma.match.findMany({
+      where: { deletedAt: null, OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }] },
+      include: withTeams,
+      orderBy: { kickoff: 'asc' },
+    }),
 };

@@ -34,11 +34,21 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
           <StatusBadge status={match.status} />
         </div>
         <div className="mt-4 flex w-full max-w-md items-center justify-between gap-4">
-          <TeamBadge team={match.homeTeam} className="flex-1 flex-col gap-2 text-center" />
+          <Link href={`/teams/${match.homeTeam.code}`} className="flex-1">
+            <TeamBadge
+              team={match.homeTeam}
+              className="flex-col gap-2 text-center transition-opacity hover:opacity-80"
+            />
+          </Link>
           <span className="font-mono text-3xl font-bold tabular-nums">
             {played ? `${match.homeScore}–${match.awayScore}` : 'vs'}
           </span>
-          <TeamBadge team={match.awayTeam} className="flex-1 flex-col gap-2 text-center" />
+          <Link href={`/teams/${match.awayTeam.code}`} className="flex-1">
+            <TeamBadge
+              team={match.awayTeam}
+              className="flex-col gap-2 text-center transition-opacity hover:opacity-80"
+            />
+          </Link>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
           {played ? 'Full time' : formatKickoff(match.kickoff)}
