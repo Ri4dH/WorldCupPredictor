@@ -40,9 +40,26 @@ test.describe('World Cup 2026 Predictor', () => {
     await expect(page.getByRole('heading', { name: /Fixtures/ })).toBeVisible();
   });
 
-  test('admin dashboard shows the operations overview', async ({ page }) => {
+  test('admin is protected and redirects to login when signed out', async ({ page }) => {
     await page.goto('/admin');
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByRole('heading', { name: 'Admin sign in' })).toBeVisible();
+  });
+
+  test('admin API rejects unauthenticated requests', async ({ request }) => {
+    const response = await request.post('/api/v1/admin/refresh');
+    expect(response.status()).toBe(401);
+  });
+
+  test('admin can sign in and use the controls', async ({ page }) => {
+    await page.goto('/login');
+    await page.locator('input[name="email"]').fill(process.env.ADMIN_EMAIL ?? '');
+    await page.locator('input[name="password"]').fill(process.env.ADMIN_PASSWORD ?? '');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+
     await expect(page.getByRole('heading', { name: 'Admin dashboard', level: 1 })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Refresh now' })).toBeVisible();
     await expect(page.getByText('Ensemble model weights')).toBeVisible();
+    await page.screenshot({ path: 'test-results/admin-authed.png', fullPage: true });
   });
 });

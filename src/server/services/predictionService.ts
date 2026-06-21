@@ -4,6 +4,7 @@ import { toMatchInput } from '@/server/data/teamStrength';
 import { predictMatch } from '@/server/prediction';
 import { matchRepository, type MatchWithTeams } from '@/server/repositories/matchRepository';
 import { predictionRepository } from '@/server/repositories/predictionRepository';
+import { getEnsembleWeights } from '@/server/services/settingsService';
 import type { EnsemblePrediction, MatchContext } from '@/types/prediction';
 
 /** Version stamped on stored predictions so model changes are traceable. */
@@ -45,7 +46,10 @@ export async function getMatchPrediction(matchId: string): Promise<MatchPredicti
   if (!match) {
     return null;
   }
-  const prediction = predictMatch(toMatchInput(match.homeTeam, match.awayTeam, buildContext(match)));
+  const weights = await getEnsembleWeights();
+  const prediction = predictMatch(toMatchInput(match.homeTeam, match.awayTeam, buildContext(match)), {
+    weights,
+  });
   await persist(matchId, prediction);
   return { match, prediction };
 }

@@ -27,7 +27,8 @@ Every prediction blends seven independent models into one calibrated forecast �
 - **Explainability** — Each prediction is broken down into the factors that drove it (Elo difference, expected-goals edge, recent form, squad availability, home advantage, tournament context), shown as easy-to-read diverging bars.
 - **Seven-model ensemble** — No single algorithm decides a match. Seven independent models each produce probabilities, and the ensemble blends them with configurable weights.
 - **Live tournament data** — Teams, fixtures, scores and standings come from a live football data feed, so the app reflects the real, in-progress World Cup. A curated offline dataset is used when no API key is configured.
-- **Tournament browser** — Fixtures with live scores, group standings computed from results, per-team profile pages, and a read-only admin overview of system status and model weights.
+- **Tournament browser** — Fixtures with live scores, group standings computed from results, and per-team profile pages.
+- **Admin dashboard** — A sign-in-protected dashboard (Auth.js) showing system status and recent predictions, with controls to refresh tournament data and tune the ensemble model weights.
 - **Versioned REST API** — A clean `/api/v1` surface (teams, matches, groups, predictions) with a consistent response envelope, input validation and rate limiting.
 - **Scheduled auto-refresh** — A GitHub Action keeps the database in sync with live results on a schedule.
 - **Reproducible** — The Monte Carlo simulation is seeded, so the same fixture always yields the same prediction.
@@ -122,6 +123,9 @@ Copy `.env.example` to `.env` and fill in the values. The `.env` file is git-ign
 | `FOOTBALL_DATA_COMPETITION` | No | Competition code for the live feed (default `WC`) | `WC` |
 | `NEXT_PUBLIC_APP_URL` | No | Public base URL of the app | `http://localhost:3000` |
 | `LOG_LEVEL` | No | Logger verbosity: `debug` / `info` / `warn` / `error` | `info` |
+| `AUTH_SECRET` | For admin | Session-signing secret (`openssl rand -base64 32`) | `base64-random-string` |
+| `ADMIN_EMAIL` | For admin | The admin account email | `admin@example.com` |
+| `ADMIN_PASSWORD` | For admin | The admin account password | `a-strong-password` |
 
 **Where to get them**
 
@@ -229,7 +233,7 @@ tests/             Test fixtures and Playwright end-to-end specs
 The app deploys to **Vercel** with a Neon database.
 
 1. Import this GitHub repository into Vercel — it auto-detects Next.js, no extra config required.
-2. In the Vercel project settings, add the environment variables from the table above (at minimum `DATABASE_URL` and `DIRECT_URL`; for live data also `PREDICTION_DATA_SOURCE=live` and `FOOTBALL_DATA_API_KEY`).
+2. In the Vercel project settings, add the environment variables from the table above: `DATABASE_URL` and `DIRECT_URL` (required); `AUTH_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD` (for the admin dashboard); and, for live data, `PREDICTION_DATA_SOURCE=live` plus `FOOTBALL_DATA_API_KEY`.
 3. Deploy. The build runs `prisma generate` automatically (via the `postinstall` script) and the Prisma client includes the serverless binary target, so it works in Vercel's runtime out of the box.
 
 Apply migrations once against your Neon database with `npm run prisma:deploy` (from your machine or a one-off job). To keep live data current after deployment, add the same secrets to the GitHub repository (**Settings → Secrets and variables → Actions**); the included workflow refreshes the data on a schedule.
@@ -239,8 +243,7 @@ Apply migrations once against your Neon database with `npm run prisma:deploy` (f
 # Future Improvements
 
 - **Knockout bracket simulation** — Monte Carlo the full tournament for live title odds.
-- **User accounts** — sign-in with saved predictions and favorites (Auth.js).
-- **Authenticated admin controls** — trigger data refreshes and override model weights from the (currently read-only) admin dashboard.
+- **Public user accounts** — sign-up with saved predictions and favorites (the Auth.js foundation is already in place).
 - **Model calibration & backtesting** — tune ensemble weights against historical results.
 - **Player-level data** — squad and injury detail feeding the availability signal.
 

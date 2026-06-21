@@ -58,7 +58,7 @@ describe('predictMatch', () => {
   });
 
   it('falls back gracefully for models without goals or scorelines', () => {
-    const prediction = predictMatch(makeInput(), [eloModel]);
+    const prediction = predictMatch(makeInput(), { models: [eloModel] });
     expect(sum([prediction.outcome.home, prediction.outcome.draw, prediction.outcome.away])).toBeCloseTo(
       1,
       10,

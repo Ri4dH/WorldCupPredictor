@@ -6,6 +6,18 @@ vi.mock('@/server/repositories/matchRepository', () => ({
 vi.mock('@/server/repositories/predictionRepository', () => ({
   predictionRepository: { upsert: vi.fn().mockResolvedValue(undefined) },
 }));
+vi.mock('@/server/services/settingsService', () => ({
+  getEnsembleWeights: () =>
+    Promise.resolve({
+      poisson: 0.18,
+      elo: 0.16,
+      expectedGoals: 0.16,
+      gradientBoostedTrees: 0.18,
+      logisticRegression: 0.12,
+      bayesian: 0.1,
+      monteCarlo: 0.1,
+    }),
+}));
 
 import { matchRepository } from '@/server/repositories/matchRepository';
 import { predictionRepository } from '@/server/repositories/predictionRepository';

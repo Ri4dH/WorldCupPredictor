@@ -21,6 +21,8 @@ const serverSchema = z.object({
   FOOTBALL_DATA_API_KEY: z.string().min(1).optional(),
   FOOTBALL_DATA_BASE_URL: z.string().url().default('https://api.football-data.org/v4'),
   FOOTBALL_DATA_COMPETITION: z.string().min(1).default('WC'),
+  ADMIN_EMAIL: z.string().min(1).optional(),
+  ADMIN_PASSWORD: z.string().min(1).optional(),
 });
 
 const clientSchema = z.object({
@@ -56,6 +58,8 @@ export function getServerEnv(): ServerEnv {
     FOOTBALL_DATA_API_KEY: emptyToUndefined(process.env.FOOTBALL_DATA_API_KEY),
     FOOTBALL_DATA_BASE_URL: emptyToUndefined(process.env.FOOTBALL_DATA_BASE_URL),
     FOOTBALL_DATA_COMPETITION: emptyToUndefined(process.env.FOOTBALL_DATA_COMPETITION),
+    ADMIN_EMAIL: emptyToUndefined(process.env.ADMIN_EMAIL),
+    ADMIN_PASSWORD: emptyToUndefined(process.env.ADMIN_PASSWORD),
   });
 
   if (!parsed.success) {

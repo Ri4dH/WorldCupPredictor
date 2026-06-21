@@ -17,17 +17,27 @@ import { clamp, weightedMean } from '@/utils/math';
 /** How many candidate scorelines to surface alongside the most likely one. */
 const TOP_SCORELINE_COUNT = 5;
 
-function weightFor(model: ModelName): number {
-  return predictionConfig.ensembleWeights[model] ?? 0;
+export type EnsembleWeights = Readonly<Record<ModelName, number>>;
+
+export interface PredictMatchOptions {
+  readonly models?: readonly PredictionModel[];
+  readonly weights?: EnsembleWeights;
+}
+
+function weightFor(weights: EnsembleWeights, model: ModelName): number {
+  return weights[model] ?? 0;
 }
 
 /** Weighted blend of every model's 1X2 probabilities, renormalized to sum 1. */
-function blendOutcome(outputs: readonly ModelOutput[]): OutcomeProbabilities {
+function blendOutcome(
+  outputs: readonly ModelOutput[],
+  weights: EnsembleWeights,
+): OutcomeProbabilities {
   let home = 0;
   let draw = 0;
   let away = 0;
   for (const output of outputs) {
-    const weight = weightFor(output.model);
+    const weight = weightFor(weights, output.model);
     home += output.outcome.home * weight;
     draw += output.outcome.draw * weight;
     away += output.outcome.away * weight;
@@ -36,30 +46,36 @@ function blendOutcome(outputs: readonly ModelOutput[]): OutcomeProbabilities {
 }
 
 /** Weighted blend of expected goals across the goal-based models. */
-function blendExpectedGoals(outputs: readonly ModelOutput[]): ExpectedGoals {
+function blendExpectedGoals(
+  outputs: readonly ModelOutput[],
+  weights: EnsembleWeights,
+): ExpectedGoals {
   const home: number[] = [];
   const away: number[] = [];
-  const weights: number[] = [];
+  const weightList: number[] = [];
   for (const output of outputs) {
     if (output.expectedGoals) {
       home.push(output.expectedGoals.home);
       away.push(output.expectedGoals.away);
-      weights.push(weightFor(output.model));
+      weightList.push(weightFor(weights, output.model));
     }
   }
   if (home.length === 0) {
     const base = predictionConfig.tournamentBaseGoals;
     return { home: base, away: base };
   }
-  return { home: weightedMean(home, weights), away: weightedMean(away, weights) };
+  return { home: weightedMean(home, weightList), away: weightedMean(away, weightList) };
 }
 
 /** Weighted blend of the scoreline grids from models that provide them. */
-function blendScoreline(outputs: readonly ModelOutput[]): ScorelineProbability[] {
+function blendScoreline(
+  outputs: readonly ModelOutput[],
+  weights: EnsembleWeights,
+): ScorelineProbability[] {
   const grid = new Map<string, number>();
   let totalWeight = 0;
   for (const output of outputs) {
-    const weight = weightFor(output.model);
+    const weight = weightFor(weights, output.model);
     if (!output.scoreline || weight <= 0) {
       continue;
     }
@@ -80,16 +96,20 @@ function blendScoreline(outputs: readonly ModelOutput[]): ScorelineProbability[]
 
 /**
  * Run every model and blend their outputs into a single explainable prediction.
- * Never relies on one algorithm (CLAUDE.md › Prediction Engine).
+ * Never relies on one algorithm (CLAUDE.md › Prediction Engine). Weights default
+ * to the configured ensemble but can be overridden (e.g. by admin settings).
  */
 export function predictMatch(
   input: MatchPredictionInput,
-  models: readonly PredictionModel[] = allModels,
+  options: PredictMatchOptions = {},
 ): EnsemblePrediction {
+  const models = options.models ?? allModels;
+  const weights = options.weights ?? predictionConfig.ensembleWeights;
+
   const modelOutputs = models.map((model) => model.predict(input));
-  const outcome = blendOutcome(modelOutputs);
-  const expectedGoals = blendExpectedGoals(modelOutputs);
-  const scorelineGrid = blendScoreline(modelOutputs);
+  const outcome = blendOutcome(modelOutputs, weights);
+  const expectedGoals = blendExpectedGoals(modelOutputs, weights);
+  const scorelineGrid = blendScoreline(modelOutputs, weights);
 
   return {
     outcome,
