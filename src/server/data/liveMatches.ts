@@ -46,6 +46,12 @@ export interface ProviderFixture {
   readonly externalId: number;
   readonly homeCode: string;
   readonly awayCode: string;
+  // Full team names are carried alongside the TLA codes because football-data
+  // occasionally returns a different TLA for the same team across its endpoints
+  // (e.g. "URY" vs "URU" for Uruguay). The name is stable, so the sync uses it
+  // as a fallback join key (see matchSyncService).
+  readonly homeName: string;
+  readonly awayName: string;
   readonly group: string;
   readonly stage: MatchStage;
   readonly status: MatchStatus;
@@ -65,6 +71,8 @@ export function toProviderFixture(match: FootballDataMatch): ProviderFixture | n
     externalId: match.id,
     homeCode,
     awayCode,
+    homeName: match.homeTeam.name,
+    awayName: match.awayTeam.name,
     group: groupLetter(match.group),
     stage: mapStage(match.stage),
     status: mapStatus(match.status),

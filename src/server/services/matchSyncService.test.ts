@@ -6,8 +6,8 @@ vi.mock('@/lib/prisma', () => ({
     team: {
       findMany: vi.fn(() =>
         Promise.resolve([
-          { id: 'th', code: 'ARG' },
-          { id: 'ta', code: 'JPN' },
+          { id: 'th', code: 'ARG', name: 'Argentina' },
+          { id: 'ta', code: 'JPN', name: 'Japan' },
         ]),
       ),
     },
@@ -56,8 +56,23 @@ describe('syncLiveMatches', () => {
 
     expect(result.fixtures).toBe(1);
     expect(result.removedSeed).toBe(72);
+    expect(result.skipped).toBe(1);
     expect(prisma.match.upsert).toHaveBeenCalledTimes(1);
     expect(prisma.match.deleteMany).toHaveBeenCalledWith({ where: { externalId: null } });
+  });
+
+  it('resolves a fixture by team name when its TLA does not match', async () => {
+    // football-data sometimes returns a different TLA (e.g. "ARG" -> "ARp")
+    // for the same team; the stable full name must still resolve it.
+    vi.mocked(footballDataClient.getMatches).mockResolvedValue({
+      matches: [liveMatch({ id: 5, homeTeam: { tla: 'ARp', name: 'Argentina' } })],
+    });
+
+    const result = await syncLiveMatches();
+
+    expect(result.fixtures).toBe(1);
+    expect(result.skipped).toBe(0);
+    expect(prisma.match.upsert).toHaveBeenCalledTimes(1);
   });
 
   it('does not remove seed matches when nothing resolves', async () => {
@@ -65,7 +80,7 @@ describe('syncLiveMatches', () => {
 
     const result = await syncLiveMatches();
 
-    expect(result).toEqual({ fixtures: 0, removedSeed: 0 });
+    expect(result).toEqual({ fixtures: 0, removedSeed: 0, skipped: 0 });
     expect(prisma.match.deleteMany).not.toHaveBeenCalled();
   });
 });
