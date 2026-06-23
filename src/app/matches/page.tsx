@@ -1,7 +1,9 @@
 import type { Metadata } from 'next/types';
 
+import { LiveRefresher } from '@/components/match/LiveRefresher';
 import { MatchCard } from '@/components/match/MatchCard';
 import { matchRepository } from '@/server/repositories/matchRepository';
+import { refreshLiveScoresIfDue } from '@/server/services/liveScoreService';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,13 +15,18 @@ export const metadata: Metadata = {
 const STATUS_RANK: Record<string, number> = { LIVE: 0, SCHEDULED: 1, FINISHED: 2 };
 
 export default async function MatchesPage() {
+  await refreshLiveScoresIfDue();
+
   const matches = [...(await matchRepository.listAll(200))].sort((a, b) => {
     const rank = (STATUS_RANK[a.status] ?? 3) - (STATUS_RANK[b.status] ?? 3);
     return rank !== 0 ? rank : a.kickoff.getTime() - b.kickoff.getTime();
   });
 
+  const hasLiveMatch = matches.some((match) => match.status === 'LIVE');
+
   return (
     <div className="container py-8">
+      {hasLiveMatch ? <LiveRefresher /> : null}
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Matches</h1>
       <p className="mt-1 text-muted-foreground">
         {matches.length} fixtures · select a match for the full prediction.

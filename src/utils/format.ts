@@ -25,6 +25,16 @@ export function formatKickoff(value: string | Date): string {
   });
 }
 
+/**
+ * Bottom-line time label for a match.
+ * - FINISHED → "Full time"
+ * - LIVE / SCHEDULED → the kickoff time (football-data's free tier exposes no
+ *   live match minute, so an elapsed clock cannot be shown).
+ */
+export function formatMatchTimeLabel(status: string, kickoff: string | Date): string {
+  return status === 'FINISHED' ? 'Full time' : formatKickoff(kickoff);
+}
+
 /** Human-readable label for a tournament stage enum value. */
 export function formatStage(stage: string): string {
   return stage

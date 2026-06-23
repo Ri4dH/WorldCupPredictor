@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { TeamBadge, type TeamBadgeTeam } from '@/components/team/TeamBadge';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { formatKickoff, formatStage } from '@/utils/format';
+import { formatMatchTimeLabel, formatStage } from '@/utils/format';
 
 export interface MatchCardMatch {
   readonly id: string;
@@ -17,7 +17,8 @@ export interface MatchCardMatch {
 
 /** Compact, linkable summary of a single match. */
 export function MatchCard({ match }: { match: MatchCardMatch }) {
-  const played = match.homeScore !== null && match.awayScore !== null;
+  // A score is shown once it exists (live or finished); "vs" until then.
+  const hasScore = match.homeScore !== null && match.awayScore !== null;
 
   return (
     <Link
@@ -31,12 +32,12 @@ export function MatchCard({ match }: { match: MatchCardMatch }) {
       <div className="mt-3 flex items-center justify-between gap-3">
         <TeamBadge team={match.homeTeam} className="min-w-0 flex-1" />
         <span className="shrink-0 font-mono text-lg font-bold tabular-nums">
-          {played ? `${match.homeScore}–${match.awayScore}` : 'vs'}
+          {hasScore ? `${match.homeScore}–${match.awayScore}` : 'vs'}
         </span>
         <TeamBadge team={match.awayTeam} className="min-w-0 flex-1 flex-row-reverse text-right" />
       </div>
       <div className="mt-2 text-center text-xs text-muted-foreground">
-        {played ? 'Full time' : formatKickoff(match.kickoff)}
+        {formatMatchTimeLabel(match.status, match.kickoff)}
       </div>
     </Link>
   );

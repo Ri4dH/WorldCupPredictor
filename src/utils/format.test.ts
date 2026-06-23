@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatKickoff, formatPercent, formatScoreline, formatStage } from './format';
+import {
+  formatKickoff,
+  formatMatchTimeLabel,
+  formatPercent,
+  formatScoreline,
+  formatStage,
+} from './format';
 
 describe('formatPercent', () => {
   it('formats probabilities', () => {
@@ -30,5 +36,18 @@ describe('formatKickoff', () => {
 
   it('formats a valid date', () => {
     expect(formatKickoff('2026-06-15T19:00:00Z')).toContain('Jun');
+  });
+});
+
+describe('formatMatchTimeLabel', () => {
+  const kickoff = '2026-06-15T19:00:00Z';
+
+  it('shows "Full time" only for finished matches', () => {
+    expect(formatMatchTimeLabel('FINISHED', kickoff)).toBe('Full time');
+  });
+
+  it('shows the kickoff time for live and scheduled matches (never "Full time")', () => {
+    expect(formatMatchTimeLabel('LIVE', kickoff)).toBe(formatKickoff(kickoff));
+    expect(formatMatchTimeLabel('SCHEDULED', kickoff)).toBe(formatKickoff(kickoff));
   });
 });

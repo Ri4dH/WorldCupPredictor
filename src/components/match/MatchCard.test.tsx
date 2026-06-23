@@ -28,4 +28,10 @@ describe('MatchCard', () => {
     render(<MatchCard match={{ ...base, status: 'SCHEDULED', homeScore: null, awayScore: null }} />);
     expect(screen.getByText('vs')).toBeInTheDocument();
   });
+
+  it('shows the live score without labelling a live match "Full time"', () => {
+    render(<MatchCard match={{ ...base, status: 'LIVE', homeScore: 1, awayScore: 0 }} />);
+    expect(screen.getByText('1–0')).toBeInTheDocument();
+    expect(screen.queryByText('Full time')).not.toBeInTheDocument();
+  });
 });

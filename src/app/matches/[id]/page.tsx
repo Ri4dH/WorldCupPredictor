@@ -2,25 +2,29 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { LiveRefresher } from '@/components/match/LiveRefresher';
 import { TeamBadge } from '@/components/team/TeamBadge';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { MatchPredictionPanel } from '@/features/matches/MatchPredictionPanel';
 import { matchRepository } from '@/server/repositories/matchRepository';
-import { formatKickoff, formatStage } from '@/utils/format';
+import { refreshLiveScoresIfDue } from '@/server/services/liveScoreService';
+import { formatMatchTimeLabel, formatStage } from '@/utils/format';
 
 export const dynamic = 'force-dynamic';
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await refreshLiveScoresIfDue();
   const match = await matchRepository.findById(id).catch(() => null);
   if (!match) {
     notFound();
   }
 
-  const played = match.homeScore !== null && match.awayScore !== null;
+  const hasScore = match.homeScore !== null && match.awayScore !== null;
 
   return (
     <div className="container py-8">
+      {match.status === 'LIVE' ? <LiveRefresher /> : null}
       <Link
         href="/matches"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -41,7 +45,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
             />
           </Link>
           <span className="font-mono text-3xl font-bold tabular-nums">
-            {played ? `${match.homeScore}–${match.awayScore}` : 'vs'}
+            {hasScore ? `${match.homeScore}–${match.awayScore}` : 'vs'}
           </span>
           <Link href={`/teams/${match.awayTeam.code}`} className="flex-1">
             <TeamBadge
@@ -51,7 +55,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
           </Link>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
-          {played ? 'Full time' : formatKickoff(match.kickoff)}
+          {formatMatchTimeLabel(match.status, match.kickoff)}
           {match.venue ? ` · ${match.venue}` : ''}
         </p>
       </div>
