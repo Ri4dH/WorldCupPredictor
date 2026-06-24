@@ -1,3 +1,5 @@
+
+
 # World Cup Predictor
 
 An explainable, full-stack web app that predicts **FIFA World Cup 2026** matches using an ensemble of statistical and machine-learning models, driven by live tournament data.
@@ -17,7 +19,10 @@ Every prediction blends seven independent models into one calibrated forecast â€
 
 # Demo
 
-[Input screenshot here]
+
+
+https://github.com/user-attachments/assets/2957b28b-8e2a-4904-8200-970de61a815e
+
 
 ---
 
@@ -208,23 +213,28 @@ tests/             Test fixtures and Playwright end-to-end specs
 
 ## Home Page
 
-[Input screenshot here]
+<img width="2880" height="1624" alt="image" src="https://github.com/user-attachments/assets/e09d5d78-4050-4893-9e8d-ea58085284d9" />
+
+<img width="2880" height="1624" alt="image" src="https://github.com/user-attachments/assets/ab9bfdff-fce2-4b8a-b2ac-28c0ccdb5d1c" />
+
+<img width="2880" height="1008" alt="image" src="https://github.com/user-attachments/assets/a4d43597-c0ea-4659-a8a9-5cb63568c8a2" />
+
 
 ## Match Prediction
 
-[Input screenshot here]
+<img width="2880" height="1624" alt="image" src="https://github.com/user-attachments/assets/139091ee-bfc4-4319-9940-4201e2dd244b" />
 
 ## Team Details
 
-[Input screenshot here]
+<img width="2880" height="1620" alt="image" src="https://github.com/user-attachments/assets/815b8a2c-12ef-4851-975b-3dd365cd1028" />
 
 ## Standings
 
-[Input screenshot here]
+<img width="2880" height="1618" alt="image" src="https://github.com/user-attachments/assets/49a96c80-ded6-4c84-9189-0b4f17b3bd38" />
 
 ## Admin Dashboard
 
-[Input screenshot here]
+<img width="2880" height="1624" alt="image" src="https://github.com/user-attachments/assets/39e38c2f-c531-49cd-b0b4-a896d342476a" />
 
 ---
 
