@@ -1,11 +1,14 @@
 import type { Prisma } from '@prisma/client';
 
+import { logger } from '@/lib/logger';
 import { toMatchInput } from '@/server/data/teamStrength';
 import { predictMatch } from '@/server/prediction';
 import { matchRepository, type MatchWithTeams } from '@/server/repositories/matchRepository';
 import { predictionRepository } from '@/server/repositories/predictionRepository';
 import { getEnsembleWeights } from '@/server/services/settingsService';
 import type { EnsemblePrediction, MatchContext } from '@/types/prediction';
+
+const log = logger.child('prediction');
 
 /** Version stamped on stored predictions so model changes are traceable. */
 export const MODEL_VERSION = '1.0.0';
@@ -52,4 +55,45 @@ export async function getMatchPrediction(matchId: string): Promise<MatchPredicti
   });
   await persist(matchId, prediction);
   return { match, prediction };
+}
+
+export interface RegenerateResult {
+  readonly generated: number;
+  readonly failed: number;
+}
+
+/**
+ * Re-run the ensemble for every current fixture and persist the results, so
+ * stored predictions stay in step with freshly synced team strengths. Finished
+ * matches are skipped by default to preserve their original pre-match forecast.
+ * Resilient: a single failure is logged and counted, never aborting the batch.
+ */
+export async function regeneratePredictions(
+  options: { includeFinished?: boolean } = {},
+): Promise<RegenerateResult> {
+  const matches = await matchRepository.listAll(200);
+  const weights = await getEnsembleWeights();
+
+  let generated = 0;
+  let failed = 0;
+  for (const match of matches) {
+    if (!options.includeFinished && match.status === 'FINISHED') {
+      continue;
+    }
+    try {
+      const prediction = predictMatch(
+        toMatchInput(match.homeTeam, match.awayTeam, buildContext(match)),
+        { weights },
+      );
+      await persist(match.id, prediction);
+      generated += 1;
+    } catch (error) {
+      failed += 1;
+      log.warn('Failed to regenerate prediction', {
+        matchId: match.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+  return { generated, failed };
 }

@@ -33,13 +33,30 @@ jobs:
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
     steps:
+      # Fail fast with an actionable message when a required secret is missing,
+      # instead of letting Prisma/the API throw an opaque error mid-run.
+      - name: Validate required secrets
+        run: |
+          missing=0
+          for name in DATABASE_URL DIRECT_URL FOOTBALL_DATA_API_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Required secret $name is not set. Add it under Settings → Secrets and variables → Actions."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Refresh aborted: one or more required repository secrets are missing."
+            exit 1
+          fi
+          echo "All required secrets are present."
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies

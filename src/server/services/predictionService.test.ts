@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/server/repositories/matchRepository', () => ({
-  matchRepository: { findById: vi.fn() },
+  matchRepository: { findById: vi.fn(), listAll: vi.fn() },
 }));
 vi.mock('@/server/repositories/predictionRepository', () => ({
   predictionRepository: { upsert: vi.fn().mockResolvedValue(undefined) },
@@ -22,7 +22,7 @@ vi.mock('@/server/services/settingsService', () => ({
 import { matchRepository } from '@/server/repositories/matchRepository';
 import { predictionRepository } from '@/server/repositories/predictionRepository';
 
-import { getMatchPrediction, MODEL_VERSION } from './predictionService';
+import { getMatchPrediction, MODEL_VERSION, regeneratePredictions } from './predictionService';
 
 function team(overrides: Record<string, unknown> = {}) {
   return {
@@ -69,5 +69,32 @@ describe('getMatchPrediction', () => {
     expect(call?.[0]).toBe('m1');
     expect(call?.[1]).toBe(MODEL_VERSION);
     expect(call?.[2]?.confidence).toBeGreaterThan(0);
+  });
+});
+
+describe('regeneratePredictions', () => {
+  it('regenerates non-finished fixtures and skips finished ones', async () => {
+    vi.mocked(matchRepository.listAll).mockResolvedValue([
+      { ...fakeMatch, id: 'live', status: 'LIVE' },
+      { ...fakeMatch, id: 'sched', status: 'SCHEDULED' },
+      { ...fakeMatch, id: 'done', status: 'FINISHED' },
+    ] as never);
+
+    const result = await regeneratePredictions();
+
+    expect(result).toEqual({ generated: 2, failed: 0 });
+    expect(predictionRepository.upsert).toHaveBeenCalledTimes(2);
+    const ids = vi.mocked(predictionRepository.upsert).mock.calls.map((c) => c[0]);
+    expect(ids).toEqual(['live', 'sched']);
+  });
+
+  it('includes finished fixtures when asked', async () => {
+    vi.mocked(matchRepository.listAll).mockResolvedValue([
+      { ...fakeMatch, id: 'done', status: 'FINISHED' },
+    ] as never);
+
+    const result = await regeneratePredictions({ includeFinished: true });
+
+    expect(result).toEqual({ generated: 1, failed: 0 });
   });
 });
