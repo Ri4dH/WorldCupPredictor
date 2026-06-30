@@ -2,6 +2,8 @@
 
 # World Cup Predictor
 
+[![Refresh live data](https://github.com/Ri4dH/WorldCupPredictor/actions/workflows/refresh-data.yml/badge.svg)](https://github.com/Ri4dH/WorldCupPredictor/actions/workflows/refresh-data.yml)
+
 An explainable, full-stack web app that predicts **FIFA World Cup 2026** matches using an ensemble of statistical and machine-learning models, driven by live tournament data.
 
 Every prediction blends seven independent models into one calibrated forecast — and, crucially, shows *why*: the rating gap, expected-goals edge, recent form, injuries and more. The app tracks the real tournament through a live data feed and refreshes itself on a schedule.
