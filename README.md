@@ -11,6 +11,7 @@ Every prediction blends seven independent models into one calibrated forecast �
 - Explainable match predictions (win / draw / win, expected goals, likely scorelines)
 - A seven-model ensemble (Poisson, Elo, Expected Goals, Gradient-Boosted Trees, Logistic Regression, Bayesian, Monte Carlo)
 - Live tournament data — real fixtures, scores and standings
+- An interactive knockout bracket — the AI-simulated path to the title beside the live official bracket
 - A versioned REST API and a premium, dark, responsive UI
 
 **Technologies:** Next.js, TypeScript, Tailwind CSS, Prisma, PostgreSQL (Neon), TanStack Query, Recharts, and a custom TypeScript prediction engine.
@@ -33,9 +34,10 @@ https://github.com/user-attachments/assets/2957b28b-8e2a-4904-8200-970de61a815e
 - **Seven-model ensemble** — No single algorithm decides a match. Seven independent models each produce probabilities, and the ensemble blends them with configurable weights.
 - **Live tournament data** — Teams, fixtures, scores and standings come from a live football data feed, so the app reflects the real, in-progress World Cup. A curated offline dataset is used when no API key is configured.
 - **Tournament browser** — Fixtures with live scores, group standings computed from results, and per-team profile pages.
+- **Knockout bracket** — An animated, AI-predicted bracket that simulates every round from the Round of 32 to the champion (with advance probabilities, predicted scorelines and confidence), shown beside the live official bracket that fills in with real results. Fully responsive.
 - **Admin dashboard** — A sign-in-protected dashboard (Auth.js) showing system status and recent predictions, with controls to refresh tournament data and tune the ensemble model weights.
 - **Versioned REST API** — A clean `/api/v1` surface (teams, matches, groups, predictions) with a consistent response envelope, input validation and rate limiting.
-- **Scheduled auto-refresh** — A GitHub Action keeps the database in sync with live results on a schedule.
+- **Scheduled auto-refresh** — A GitHub Action keeps the database in sync with live results on a schedule, re-syncing teams and fixtures and regenerating predictions; the live pages also refresh themselves while a match is in progress.
 - **Reproducible** — The Monte Carlo simulation is seeded, so the same fixture always yields the same prediction.
 
 ---
@@ -252,7 +254,7 @@ Apply migrations once against your Neon database with `npm run prisma:deploy` (f
 
 # Future Improvements
 
-- **Knockout bracket simulation** — Monte Carlo the full tournament for live title odds.
+- **Full-tournament title odds** — Monte Carlo the knockout bracket thousands of times for win-the-cup probabilities (the deterministic predicted bracket is already in place).
 - **Public user accounts** — sign-up with saved predictions and favorites (the Auth.js foundation is already in place).
 - **Model calibration & backtesting** — tune ensemble weights against historical results.
 - **Player-level data** — squad and injury detail feeding the availability signal.

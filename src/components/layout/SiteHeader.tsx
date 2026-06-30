@@ -14,6 +14,9 @@ export function SiteHeader() {
           <Link href="/matches" className="text-muted-foreground transition-colors hover:text-foreground">
             Matches
           </Link>
+          <Link href="/bracket" className="text-muted-foreground transition-colors hover:text-foreground">
+            Bracket
+          </Link>
           <Link href="/standings" className="text-muted-foreground transition-colors hover:text-foreground">
             Standings
           </Link>

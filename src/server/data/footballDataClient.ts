@@ -39,14 +39,22 @@ export interface FootballDataStandingGroup {
   readonly table: readonly FootballDataStandingRow[];
 }
 
+export interface FootballDataMatchTeam {
+  readonly name: string;
+  readonly tla: string | null;
+  /** Present on the matches feed; used by the knockout bracket. */
+  readonly id?: number | null;
+  readonly crest?: string | null;
+}
+
 export interface FootballDataMatch {
   readonly id: number;
   readonly utcDate: string;
   readonly status: string;
   readonly stage: string;
   readonly group: string | null;
-  readonly homeTeam: { readonly tla: string | null; readonly name: string };
-  readonly awayTeam: { readonly tla: string | null; readonly name: string };
+  readonly homeTeam: FootballDataMatchTeam;
+  readonly awayTeam: FootballDataMatchTeam;
   readonly score: { readonly fullTime: { readonly home: number | null; readonly away: number | null } };
 }
 
